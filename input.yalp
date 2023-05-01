@@ -15,7 +15,7 @@ IGNORE WS
 
 expression:
     expression PLUS term
-  | term | error
+  | term
 ;
 term:
     term TIMES factor

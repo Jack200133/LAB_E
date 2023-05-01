@@ -1,4 +1,6 @@
 from LR import canonical_collection
+from draw import visualize_lr0
+
 import re
 
 def read_yalp_file(filename):
@@ -38,14 +40,17 @@ def process_productions_section(content):
             current_production = line[:-1]
         elif line.endswith(';'):
             line = line[:-1]
-            production_rules.append(line)
+            if line != "":
+                production_rules.append(line)
             productions[current_production] = production_rules
             production_rules = []
             current_production = None
         else:
             if (line.startswith('|') or line.startswith('->')) and current_production:
-                line = line.strip()
-                production_rules.extend(line.split('|'))
+                line = line.strip().split('|')
+                for item in line: 
+                    if item.strip() != "":
+                        production_rules.append(item.strip())
 
             elif ('|' in line) and current_production:
                 line = line.strip()
@@ -81,3 +86,6 @@ for i, state in enumerate(states):
 print('Transiciones:')
 for transition in transitions:
     print(transition)
+# Ejemplo de uso:
+
+visualize_lr0(states, transitions)

@@ -1,10 +1,12 @@
 class LR0Item:
-    def __init__(self, production, position):
+    def __init__(self, production, position,derived=False):
         self.production = (production[0], tuple(production[1]))
         self.position = position
+        self.derived = derived
+        
 
     def __repr__(self):
-        return f'{self.production[0]} -> {" ".join(self.production[1][:self.position]) + "." + " ".join(self.production[1][self.position:])}'
+        return f'{self.production[0]} -> {" ".join(self.production[1][:self.position]) + "•" + " ".join(self.production[1][self.position:])}'
 
     def __eq__(self, other):
         return self.production == other.production and self.position == other.position
@@ -22,7 +24,7 @@ def closure(items, productions):
             if item.position < len(item.production[1]) and item.production[1][item.position] in productions:
                 non_terminal = item.production[1][item.position]
                 for production in productions[non_terminal]:
-                    new_item = LR0Item((non_terminal, production), 0)
+                    new_item = LR0Item((non_terminal, production), 0,True)
                     if new_item not in new_items:
                         new_items.add(new_item)
                         changed = True
@@ -36,9 +38,8 @@ def goto(items, symbol, productions):
             next_items.add(LR0Item(item.production, item.position + 1))
     return closure(next_items, productions)
 
-
 def canonical_collection(productions):
-    items = LR0Item(('S\'', [list(productions.keys())[0]]), 0)
+    items = LR0Item((list(productions.keys())[0]+'\'', [list(productions.keys())[0]]), 0)
     states = [closure({items}, productions)]
     stack = [states[0]]
     transitions = []
@@ -55,6 +56,14 @@ def canonical_collection(productions):
                 states.append(next_state)
                 stack.append(next_state)
             transitions.append((states.index(state), symbol, states.index(next_state)))
+    
+    accept_state = len(states)
+    for i,state in enumerate(states):
+        for item in state:
+            if item.production[0] == list(productions.keys())[0]+'\'' and item.position == len(item.production[1]) and item.derived == False:
+                transitions.append((i,'$',accept_state))
+                break
+    states.append(set())
 
     return states, transitions
 

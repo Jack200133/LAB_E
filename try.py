@@ -1,4 +1,5 @@
 from LR import canonical_collection
+from LL import first_sets,follow_sets
 from draw import visualize_lr0
 
 import re
@@ -75,8 +76,11 @@ def convert_productions(productions_dict):
 
 tokens, productions_dict = parse_yalp_file('input.yalp')
 converted_productions = convert_productions(productions_dict)
-productions = [(nt, rule) for nt, rules in productions_dict.items() for rule in rules]
+# productions = [(nt, rule) for nt, rules in productions_dict.items() for rule in rules]
+print("----------------------")
 print(converted_productions)
+print("----------------------")
+
 states, transitions = canonical_collection(converted_productions)
 
 print('Estados:')
@@ -89,3 +93,24 @@ for transition in transitions:
 # Ejemplo de uso:
 
 visualize_lr0(states, transitions)
+
+print("\n------------LL----------\n\n")
+
+def convert_productions(productions):
+    converted_productions = {}
+    for key, value in productions.items():
+        converted_productions[key] = [prod.split() for prod in value]
+    return converted_productions
+
+print(productions_dict)
+converted_prod = convert_productions(productions_dict)
+first = first_sets(converted_prod)
+follow = follow_sets(converted_prod, first)
+
+print("First sets:")
+for non_terminal, first_set in first.items():
+    print(f"{non_terminal}: {first_set}")
+
+print("\nFollow sets:")
+for non_terminal, follow_set in follow.items():
+    print(f"{non_terminal}: {follow_set}")

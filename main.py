@@ -29,7 +29,13 @@ file_content = replace_quotation_mark(file_content)
 regex,errorStack,fin = build_regex(file_content,i)
 LEXtokens,errorStack = build_tokens(file_content, regex,errorStack,fin+1)
 
-tokens, productions_dict = parse_yalp_file('yapar/lex2.yalp')
+tokens, productions_dict,errorStack = parse_yalp_file('yapar/lex2.yalp',errorStack)
+if errorStack:
+    print(CRED,"Error stack:")
+    for error in errorStack:
+        print(error)
+    print(CEND)
+    exit()
 
 gooTokens = []
 
@@ -39,7 +45,11 @@ for token in tokens:
         if token == evald:
             gooTokens.append(token)
     if token not in gooTokens:
-        errorStack.append(f"Token {token} no definido en el lexer")
+        errorStack.append(f"Token {token} no definido en el YALEX")
+
+if len(gooTokens) < len(LEXtokens):
+    errorStack.append("Faltaron Definir tokens en el YAPAR")
+
 
 if errorStack:
     print(CRED,"Error stack:")
